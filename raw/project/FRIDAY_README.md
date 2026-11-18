@@ -1,0 +1,340 @@
+# F.R.I.D.A.Y.
+## Multi-Agent Conversational E-Commerce System
+
+**Flexible Recommendation Intelligence with Digital Assisted paYments**
+
+An AI-powered conversational e-commerce assistant that automates product discovery, purchasing, payment processing, and order tracking through a unified chat-based interface. 
+
+## Overview
+
+F.R.I.D.A.Y. is a **multi-agent conversational commerce system** designed for businesses that sell products through social media and messaging platforms.
+
+Instead of requiring customers to communicate with a business owner manually for product inquiries, order placement, payment, and tracking, F.R.I.D.A.Y. handles the complete purchasing workflow through natural-language interaction. 
+
+### Core Workflow
+
+```text
+User Query
+    ↓
+Supervisor Agent
+    ↓
+┌───────────────┬───────────────┬────────────────┐
+│               │               │                │
+Sales Agent   Buy Agent    Payment Agent   Information Agent
+│               │               │
+│               ↓               │
+│          Razorpay Payment      │
+│               ↓               │
+│          Webhook Verification  │
+│               ↓               │
+│          Shipping Agent        │
+│               ↓               │
+└────────── Order Tracking ──────┘
+```
+
+The system architecture uses specialized agents coordinated by a central **Supervisor Agent**. The architecture diagram in the project report shows the Supervisor routing requests to the Sales, Buy, Payment, Shipping, and Information agents, with short-term memory maintaining conversational context. 
+
+## Features
+
+* **Conversational product discovery**
+
+  * Search and browse products using natural language.
+  * Retrieve product images, names, descriptions, prices, and IDs.
+
+* **AI-powered product assistance**
+
+  * Product recommendations and product-related questions.
+  * Maintains context about recently discussed products.
+
+* **Variant and pricing management**
+
+  * Handles product variants such as size, color, or configuration.
+  * Calculates and explains the final price.
+
+* **Automated order creation**
+
+  * Generates unique Order IDs.
+  * Collects customer and delivery information.
+  * Maintains transaction context.
+
+* **Razorpay payment integration**
+
+  * Generates payment links.
+  * Creates checkout sessions.
+  * Processes and verifies transactions.
+
+* **Webhook-based payment verification**
+
+  * Receives payment events from Razorpay.
+  * Validates payment status.
+  * Automatically updates order records.
+  * Prevents false payment confirmations.
+
+* **Shipping and order tracking**
+
+  * Processes fulfillment requests.
+  * Manages shipment information.
+  * Provides tracking and delivery updates.
+
+* **Information Agent**
+
+  * Handles business information, service details, delivery policies, and FAQs.
+
+* **Short-term conversational memory**
+
+  * Recent conversation history.
+  * Selected product IDs.
+  * Transaction context.
+  * Previously discussed product information. 
+
+* **Human-in-the-Loop confirmation**
+
+  * Purchase intent is explicitly confirmed before entering the buying workflow. 
+
+## Multi-Agent Architecture
+
+### 1. Supervisor Agent
+
+Acts as the entry point and central coordinator.
+
+Responsibilities:
+
+* Intent classification
+* Workflow planning
+* Agent selection
+* Inter-agent communication
+
+It dynamically determines the appropriate execution path instead of relying on a hard-coded workflow for every scenario. 
+
+### 2. Sales Agent
+
+Handles product discovery and product-related conversations.
+
+```text
+User Query
+    ↓
+Product Search
+    ↓
+Database Retrieval
+    ↓
+Product Ranking
+    ↓
+Product Information
+    ↓
+Short-Term Memory
+```
+
+It retrieves products, answers product questions, and stores relevant product identifiers for follow-up interactions. 
+
+### 3. Buy Agent
+
+Handles the transition from product discovery to purchasing.
+
+Responsibilities:
+
+* Identify selected product
+* Retrieve available variants
+* Calculate final price
+* Explain pricing
+* Maintain product state
+
+
+
+### 4. Payment Agent
+
+Manages payment operations.
+
+Responsibilities:
+
+* Generate payment links
+* Create checkout sessions
+* Monitor payment status
+* Verify transactions
+
+Payment processing is isolated into a dedicated module to simplify payment management. 
+
+### 5. Shipping Agent
+
+Activated after successful payment verification.
+
+Responsibilities:
+
+* Process fulfillment requests
+* Manage shipment information
+* Generate tracking details
+* Provide delivery updates 
+
+### 6. Information Agent
+
+Handles non-purchase-related queries, including:
+
+* Business information
+* Services
+* Delivery policies
+* FAQs 
+
+## Payment Flow
+
+F.R.I.D.A.Y. uses Razorpay with webhook-based verification.
+
+```text
+Buy Agent
+    ↓
+Payment Agent
+    ↓
+Create Payment Request
+    ↓
+Razorpay
+    ↓
+Customer Completes Payment
+    ↓
+Razorpay Webhook
+    ↓
+Validate Payment
+    ↓
+Update Order
+    ↓
+Shipping Agent
+    ↓
+Order Confirmation
+```
+
+The webhook mechanism ensures that an order is not treated as paid merely because a customer claims to have completed payment. 
+
+## Example Interaction
+
+```text
+User:
+Show product c-9
+
+F.R.I.D.A.Y.:
+[Product Image]
+Product: ...
+Description: ...
+Price: ...
+Product ID: c-9
+
+User:
+Buy product c-9
+
+F.R.I.D.A.Y.:
+Select your required variant...
+
+User:
+[Provides variant and delivery details]
+
+F.R.I.D.A.Y.:
+Order ID: ORD59A1
+Total: ₹15
+
+Would you like to proceed with payment?
+
+User:
+Pay
+
+F.R.I.D.A.Y.:
+[Payment Link]
+
+User:
+Paid
+
+F.R.I.D.A.Y.:
+[Verifies payment through webhook]
+
+Payment successful.
+Order confirmed and will be processed for shipping.
+```
+
+## Testing
+
+The system was tested across product retrieval, order creation, payment-link generation, failed payment verification, and successful payment verification.
+
+| Test Case                       | Result |
+| ------------------------------- | ------ |
+| Product Retrieval               | Passed |
+| Order Creation & Payment Link   | Passed |
+| Failed Payment Verification     | Passed |
+| Successful Payment Verification | Passed |
+
+For example, the product retrieval test successfully returned the product image, name, description, price, and Product ID. 
+
+The failed-payment test demonstrated that entering `Paid` without a successful gateway confirmation does not falsely confirm the transaction. 
+
+The successful-payment test verified the transaction and updated the order status for processing and shipment. 
+
+## Advantages
+
+* Reduced manual customer-support workload
+* 24/7 availability
+* Faster customer responses
+* Unified shopping experience
+* Automated payment processing
+* Real-time order updates
+* Modular multi-agent architecture
+* Improved scalability
+* Reduced human errors
+* More efficient order management 
+
+## Current Limitations
+
+The current implementation has several known limitations:
+
+* Short-term state management can cause workflow-state inconsistencies.
+* Recovery from unexpected conversation paths is limited.
+* Agent behavior depends significantly on prompt engineering.
+* Payment processing depends on external services such as Razorpay.
+* Larger-scale deployment may require additional infrastructure optimization.
+* Some edge cases are not yet fully handled.
+* More advanced routing and state-transition mechanisms are required for seamless task switching. 
+
+## Future Scope
+
+Planned extensions include:
+
+* Dedicated Support Agent
+* Automated delivery and shipping assistance
+* Expanded business-information handling
+* Human support escalation
+* Automated payment-failure resolution
+* Handling "money deducted but payment not confirmed" cases
+* Advanced workflow and state management
+* Long-term memory and personalization
+* Multi-platform deployment
+* Sales analytics and business intelligence dashboards 
+
+Potential deployment channels include **WhatsApp, Telegram, Instagram, Facebook Messenger, and web applications**. 
+
+## User Flow
+
+```text
+Browse Products
+      ↓
+Select Product
+      ↓
+Provide Delivery Details
+      ↓
+Review Order
+      ↓
+Request Payment
+      ↓
+Complete Payment
+      ↓
+Verify Payment
+      ↓
+Order Confirmation
+```
+
+This is the complete purchasing workflow documented in the project report. 
+
+## Project Status
+
+The documented implementation demonstrates an end-to-end conversational e-commerce workflow covering:
+
+**Product Discovery → Purchase → Payment → Verification → Fulfillment → Tracking**
+
+The project report documents successful testing of the core product, ordering, and payment workflows, while identifying workflow recovery, state management, exception handling, and scalability as areas for further development. 
+
+---
+
+**F.R.I.D.A.Y.**
+*Flexible Recommendation Intelligence with Digital Assisted paYments*
